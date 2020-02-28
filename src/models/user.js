@@ -21,7 +21,7 @@ const User = mongoose.model('User', {
     password: {
         type: String,
         required: true,
-        min: 7,
+        minlength: 7,
         trim: true,
         validate(value) {
             if (value.toLowerCase().includes('password')) {
@@ -39,3 +39,5 @@ const User = mongoose.model('User', {
         }
     }
 })
+
+module.exports = User
