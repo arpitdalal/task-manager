@@ -6,6 +6,19 @@ const auth = require('../middleware/auth')
 const { sendWelcomeEmail, sendCancelEmail } = require('../emails/account')
 const router = new express.Router()
 
+const upload = multer({
+    limits: {
+        fileSize: 1000000,
+    },
+    fileFilter(req, file, cb){
+        if(!file.originalname.match(/\.(jpg|jpeg|png)$/)){
+            return cb(new Error('Please upload a .jpg, .jpeg or .png image file'))
+        }
+
+        cb(undefined, true)
+    }
+})
+
 router.post('/users', async (req, res) => {
     const user = new User(req.body)
 
@@ -57,18 +70,6 @@ router.get('/users/me', auth, (req, res) => {
     res.send(req.user)
 })
 
-const upload = multer({
-    limits: {
-        fileSize: 1000000,
-    },
-    fileFilter(req, file, cb){
-        if(!file.originalname.match(/\.(jpg|jpeg|png)$/)){
-            return cb(new Error('Please upload a .jpg, .jpeg or .png image file'))
-        }
-
-        cb(undefined, true)
-    }
-})
 router.post('/users/me/avatar', auth, upload.single('avatar'), async (req, res) => {
     const buffer = await sharp(req.file.buffer).resize({ width: 250, height: 250 }).png().toBuffer()
     req.user.avatar = buffer
